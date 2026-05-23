@@ -33,7 +33,7 @@ export default {
         },
         destructive: {
           DEFAULT: 'var(--destructive)',
-          foreground: 'var(--destructive-foreground, var(--primary-foreground))',
+          foreground: 'var(--destructive-foreground)',
         },
         border: 'var(--border)',
         input: 'var(--input)',
