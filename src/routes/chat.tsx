@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { getToken } from '../lib/authStore'
+import { SessionSidebar } from '../features/chat/SessionSidebar'
 
 export const Route = createFileRoute('/chat')({
   beforeLoad: () => {
@@ -11,9 +12,7 @@ export const Route = createFileRoute('/chat')({
 function ChatLayout() {
   return (
     <div className="flex h-screen bg-background">
-      <aside className="w-64 border-r p-4">
-        <p className="text-sm text-muted-foreground">Sidebar (Task 9)</p>
-      </aside>
+      <SessionSidebar />
       <main className="flex-1 flex flex-col overflow-hidden">
         <Outlet />
       </main>
