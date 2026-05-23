@@ -3,9 +3,7 @@ import { useNavigate, Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { setToken } from '../../lib/authStore'
-import { apiFetch, ApiError } from '../../lib/fetchClient'
-
-interface TokenResponse { access_token: string; token_type: string; expires_in: number }
+import { apiFetch, ApiError, type TokenResponse } from '../../lib/fetchClient'
 
 export function LoginForm() {
   const navigate = useNavigate()
@@ -24,7 +22,7 @@ export function LoginForm() {
         body: JSON.stringify({ email, password }),
       })
       setToken(data.access_token)
-      navigate({ to: '/chat' })
+      await navigate({ to: '/chat' })
     } catch (err) {
       setError(err instanceof ApiError && err.status === 401
         ? 'Invalid email or password'
@@ -40,9 +38,11 @@ export function LoginForm() {
         <h1 className="text-2xl font-bold">Sign in</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input type="email" placeholder="Email" value={email}
+        <label htmlFor="email" className="sr-only">Email</label>
+        <Input id="email" type="email" placeholder="Email" value={email}
           onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-        <Input type="password" placeholder="Password" value={password}
+        <label htmlFor="password" className="sr-only">Password</label>
+        <Input id="password" type="password" placeholder="Password" value={password}
           onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
         {error && <p className="text-sm text-destructive">{error}</p>}
         <Button type="submit" className="w-full" disabled={loading}>
