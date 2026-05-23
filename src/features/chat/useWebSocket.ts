@@ -11,16 +11,24 @@ export function useWebSocket(sessionId: string) {
   const wsRef = useRef<WebSocket | null>(null)
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const token = getToken()
     if (!token) return
 
-    const ws = new WebSocket(
-      `ws://localhost:8000/ws/chat?token=${token}&session_id=${sessionId}`
-    )
+    setStreamingContent('')
+    setIsStreaming(false)
+    setIsConnecting(false)
+
+    const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+    const wsUrl = apiUrl.replace(/^http/, 'ws')
+    const ws = new WebSocket(`${wsUrl}/ws/chat?token=${token}&session_id=${sessionId}`)
     wsRef.current = ws
+    setIsConnecting(true)
+
+    ws.onopen = () => { setIsConnecting(false) }
 
     ws.onmessage = (event) => {
       const msg: WSMessage = JSON.parse(event.data)
@@ -52,5 +60,5 @@ export function useWebSocket(sessionId: string) {
     wsRef.current.send(JSON.stringify({ content, model: 'llama3.2' }))
   }, [])
 
-  return { sendMessage, streamingContent, isStreaming, error }
+  return { sendMessage, streamingContent, isStreaming, isConnecting, error }
 }
