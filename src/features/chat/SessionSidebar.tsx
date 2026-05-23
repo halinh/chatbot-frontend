@@ -14,8 +14,8 @@ export function SessionSidebar() {
   }
 
   async function handleSignOut() {
-    clearToken()
     await navigate({ to: '/login' })
+    clearToken()
   }
 
   return (
@@ -34,8 +34,8 @@ export function SessionSidebar() {
               key={session.session_id}
               to="/chat/$sessionId"
               params={{ sessionId: session.session_id }}
-              className="flex flex-col w-full rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-              activeProps={{ className: 'bg-accent text-accent-foreground' }}
+              className="flex flex-col w-full rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+              activeProps={{ className: 'flex flex-col w-full rounded-md px-3 py-2 text-sm transition-colors bg-accent text-accent-foreground' }}
             >
               <span className="font-medium truncate">Chat {session.session_id.slice(0, 8)}</span>
               <span className="text-xs text-muted-foreground">
