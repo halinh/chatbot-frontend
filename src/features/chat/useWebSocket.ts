@@ -6,8 +6,10 @@ interface WSChunk { type: 'chunk'; content: string }
 interface WSDone { type: 'done'; session_id: string; message_id: string }
 interface WSError { type: 'error'; message: string }
 type WSMessage = WSChunk | WSDone | WSError
+interface WSOutbound { content: string; model: string }
 
 export function useWebSocket(sessionId: string) {
+  const defaultModel = import.meta.env.VITE_DEFAULT_MODEL ?? 'llama3.2'
   const wsRef = useRef<WebSocket | null>(null)
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
@@ -46,6 +48,7 @@ export function useWebSocket(sessionId: string) {
     }
 
     ws.onerror = () => {
+      setIsConnecting(false)
       setError('WebSocket connection error')
       setIsStreaming(false)
     }
@@ -53,12 +56,13 @@ export function useWebSocket(sessionId: string) {
     return () => { ws.close() }
   }, [sessionId])
 
-  const sendMessage = useCallback((content: string) => {
+  const sendMessage = useCallback((content: string, model = defaultModel) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
     setError(null)
     setIsStreaming(true)
-    wsRef.current.send(JSON.stringify({ content, model: 'llama3.2' }))
-  }, [])
+    const payload: WSOutbound = { content, model }
+    wsRef.current.send(JSON.stringify(payload))
+  }, [defaultModel])
 
   return { sendMessage, streamingContent, isStreaming, isConnecting, error }
 }

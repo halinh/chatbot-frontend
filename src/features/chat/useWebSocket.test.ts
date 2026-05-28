@@ -9,9 +9,10 @@ class MockWebSocket {
   readyState = MockWebSocket.OPEN
   onmessage: ((e: { data: string }) => void) | null = null
   onerror: (() => void) | null = null
+  url: string
   sent: string[] = []
   closed = false
-  constructor(public url: string) {}
+  constructor(url: string) { this.url = url }
   send(data: string) { this.sent.push(data) }
   close() { this.closed = true }
 }
@@ -72,11 +73,25 @@ describe('useWebSocket', () => {
     expect(result.current.isStreaming).toBe(false)
   })
 
+  it('clears isConnecting and sets error on connection failure', () => {
+    const { result } = renderHook(() => useWebSocket('sess-1'))
+    act(() => { mockWs.onerror?.() })
+    expect(result.current.isConnecting).toBe(false)
+    expect(result.current.error).toBe('WebSocket connection error')
+    expect(result.current.isStreaming).toBe(false)
+  })
+
   it('sendMessage sends JSON and sets isStreaming', () => {
     const { result } = renderHook(() => useWebSocket('sess-1'))
     act(() => { result.current.sendMessage('Hello') })
     expect(mockWs.sent).toEqual([JSON.stringify({ content: 'Hello', model: 'llama3.2' })])
     expect(result.current.isStreaming).toBe(true)
+  })
+
+  it('sendMessage uses custom model when provided', () => {
+    const { result } = renderHook(() => useWebSocket('sess-1'))
+    act(() => { result.current.sendMessage('Hello', 'mistral') })
+    expect(mockWs.sent).toEqual([JSON.stringify({ content: 'Hello', model: 'mistral' })])
   })
 
   it('closes WebSocket on unmount', () => {
